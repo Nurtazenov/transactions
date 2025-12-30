@@ -1,17 +1,30 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
-import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger'
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
 
-  app.setGlobalPrefix(config.get('HTTP_PREFIX') as string);
+  const port = config.get<number>('PORT', 9000);
+  const host = config.get<string>('HOST', 'localhost');
+  const prefix = config.get<string>('HTTP_PREFIX', 'api');
 
-  const configSwagger = new DocumentBuilder().setTitle(`${config.get('SERVICE_NAME')} microservice`).setDescription('API Documentation').addServer(`http://${config.get('HTTP_HOST')}:${config.get('HTTP_PORT')}${config.get('HTTP_PREFIX')}`).build();
+  app.setGlobalPrefix(prefix);
 
-  const document = SwaggerModule.createDocument(app, configSwagger);
-  SwaggerModule.setup(`${config.get('HTTP_PREFIX')}/docs`, app, document);
-  await app.listen(config.get('HTTP_PORT') as string);
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle(`${config.get('APP_NAME', 'Account')} microservice`)
+    .setDescription('API Documentation')
+    .addServer(`http://${host}:${port}/${prefix}`)
+    .build();
+
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+
+  SwaggerModule.setup(`${prefix}/docs`, app, document);
+
+  await app.listen(port);
+  console.log(`🚀 Server running on http://${host}:${port}/${prefix}`);
 }
+
 bootstrap();

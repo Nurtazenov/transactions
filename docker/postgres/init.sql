@@ -1,0 +1,1 @@
+EXTENSION IF NOT EXISTS "uuiid-ossp";
