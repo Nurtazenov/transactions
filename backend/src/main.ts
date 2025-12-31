@@ -7,7 +7,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
 
-  const port = config.get<number>('PORT', 9000);
+  const port = config.get<number>('PORT', 3001);
   const host = config.get<string>('HOST', 'localhost');
   const prefix = config.get<string>('HTTP_PREFIX', 'api');
 
@@ -16,7 +16,7 @@ async function bootstrap() {
   const swaggerConfig = new DocumentBuilder()
     .setTitle(`${config.get('APP_NAME', 'Account')} microservice`)
     .setDescription('API Documentation')
-    .addServer(`http://${host}:${port}/${prefix}`)
+    .addServer(`http://${host}:${port}${prefix}`)
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
@@ -24,7 +24,7 @@ async function bootstrap() {
   SwaggerModule.setup(`${prefix}/docs`, app, document);
 
   await app.listen(port);
-  console.log(`🚀 Server running on http://${host}:${port}/${prefix}`);
+  console.log(`🚀 Server running on http://${host}:${port}${prefix}`);
 }
 
 bootstrap();
